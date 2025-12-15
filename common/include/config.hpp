@@ -4,6 +4,7 @@
 #include "vector.hpp"
 
 #include <string>
+#include <vector>
 
 namespace render {
 

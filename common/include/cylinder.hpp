@@ -3,6 +3,7 @@
 
 #include "material.hpp"
 #include "ray.hpp"
+#include "sphere.hpp"
 #include "vector.hpp"
 
 #include <cmath>
@@ -10,8 +11,6 @@
 #include <optional>
 
 namespace render {
-
-  struct hit_info;
 
   class cylinder {
   public:
@@ -86,7 +85,10 @@ namespace render {
             const double dist_sq = (point - cap_center).magnitude_squared();
             
             if (dist_sq <= radius_ * radius_) {
-              const vector normal = (cap_center == top_center) ? axis_norm : -axis_norm;
+              const bool is_top = (cap_center.get_x() == top_center.get_x() && 
+                                    cap_center.get_y() == top_center.get_y() && 
+                                    cap_center.get_z() == top_center.get_z());
+              const vector normal = is_top ? axis_norm : -axis_norm;
               
               if (!best_hit || t < best_hit->t) {
                 best_hit = hit_info{t, point, normal, material_};

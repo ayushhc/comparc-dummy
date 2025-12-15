@@ -32,8 +32,9 @@ int main(int argc, char* argv[]) {
     const int width = cam.get_image_width();
     const int height = cam.get_image_height();
 
-    // Initialize RNG
-    std::mt19937 rng(config.ray_rng_seed);
+    // Initialize RNGs - separate for ray generation and material scattering  
+    std::mt19937 ray_rng(config.ray_rng_seed);
+    std::mt19937 material_rng(config.material_rng_seed);
     std::uniform_real_distribution<double> dist(0.0, 1.0);
 
     // Render image
@@ -50,10 +51,10 @@ int main(int argc, char* argv[]) {
 
         // Monte Carlo sampling
         for (int s = 0; s < config.samples_per_pixel; ++s) {
-          const double u = (static_cast<double>(i) + dist(rng)) / static_cast<double>(width);
-          const double v = (static_cast<double>(j) + dist(rng)) / static_cast<double>(height);
+          const double u = (static_cast<double>(i) + dist(ray_rng)) / static_cast<double>(width);
+          const double v = (static_cast<double>(j) + dist(ray_rng)) / static_cast<double>(height);
           const render::ray r = cam.get_ray(u, v);
-          color = color + renderer.trace_ray(r, 0, rng);
+          color = color + renderer.trace_ray(r, 0, ray_rng, material_rng);
         }
 
         // Average and gamma correct

@@ -165,7 +165,7 @@ namespace render {
         continue;
       }
 
-      std::vector<std::string> tokens = split_line(line);
+      std::vector<std::string> tokens = config_parser::split_line(line);
 
       if (tokens.empty()) {
         continue;
@@ -175,7 +175,7 @@ namespace render {
       std::vector<std::string> values(tokens.begin() + 1, tokens.end());
 
       try {
-        parse_parameter(config, key, values, line);
+        config_parser::parse_parameter(config, key, values, line);
       }
       catch (const std::runtime_error& e) {
         throw;

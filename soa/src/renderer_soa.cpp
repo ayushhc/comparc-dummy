@@ -17,8 +17,9 @@ namespace render {
 
   vector renderer_soa::get_background_color(const ray& r) const {
     const vector unit_direction = r.get_direction().normalize();
-    const double t = 0.5 * (unit_direction.get_y() + 1.0);
-    return config_.background_dark_color * (1.0 - t) + config_.background_light_color * t;
+    const double m = 0.5 * (unit_direction.get_y() + 1.0);
+    // Spec: c = (1 - m) * c_light + m * c_dark
+    return config_.background_light_color * (1.0 - m) + config_.background_dark_color * m;
   }
 
   std::optional<hit_info> renderer_soa::find_closest_hit(const ray& r) const {
@@ -126,7 +127,10 @@ namespace render {
             const double dist_sq = (point - cap_center).magnitude_squared();
             
             if (dist_sq <= radius * radius) {
-              const vector normal = (cap_center == top_center) ? axis_norm : -axis_norm;
+              const bool is_top = (cap_center.get_x() == top_center.get_x() && 
+                                    cap_center.get_y() == top_center.get_y() && 
+                                    cap_center.get_z() == top_center.get_z());
+              const vector normal = is_top ? axis_norm : -axis_norm;
               closest_t = t;
               closest_hit = hit_info{t, point, normal, mat};
             }
@@ -138,17 +142,17 @@ namespace render {
     return closest_hit;
   }
 
-  vector renderer_soa::random_in_unit_sphere(std::mt19937& rng) const {
+  vector renderer_soa::random_in_unit_sphere(std::mt19937& material_rng) const {
     std::uniform_real_distribution<double> dist(-1.0, 1.0);
     vector p;
     do {
-      p = vector{dist(rng), dist(rng), dist(rng)};
+      p = vector{dist(material_rng), dist(material_rng), dist(material_rng)};
     } while (p.magnitude_squared() >= 1.0);
     return p;
   }
 
-  vector renderer_soa::random_unit_vector(std::mt19937& rng) const {
-    return random_in_unit_sphere(rng).normalize();
+  vector renderer_soa::random_unit_vector(std::mt19937& material_rng) const {
+    return random_in_unit_sphere(material_rng).normalize();
   }
 
   vector renderer_soa::reflect(const vector& v, const vector& n) const {
@@ -173,16 +177,16 @@ namespace render {
     return r0 + (1.0 - r0) * std::pow(1.0 - cosine, 5.0);
   }
 
-  vector renderer_soa::scatter_matte(const ray& r, const hit_info& hit, int depth, std::mt19937& rng) const {
+  vector renderer_soa::scatter_matte(const ray& r, const hit_info& hit, int depth, std::mt19937& ray_rng, std::mt19937& material_rng) const {
     const auto* mat = dynamic_cast<const matte_material*>(hit.mat.get());
     if (!mat) {
       return vector{0.0, 0.0, 0.0};
     }
 
-    const vector target = hit.point + hit.normal + random_unit_vector(rng);
+    const vector target = hit.point + hit.normal + random_unit_vector(material_rng);
     const ray scattered{hit.point, (target - hit.point).normalize()};
     const vector& reflectance = mat->get_reflectance();
-    const vector traced = trace_ray(scattered, depth + 1, rng);
+    const vector traced = trace_ray(scattered, depth + 1, ray_rng, material_rng);
 
     return vector{
       reflectance.get_x() * traced.get_x(),
@@ -191,19 +195,19 @@ namespace render {
     };
   }
 
-  vector renderer_soa::scatter_metal(const ray& r, const hit_info& hit, int depth, std::mt19937& rng) const {
+  vector renderer_soa::scatter_metal(const ray& r, const hit_info& hit, int depth, std::mt19937& ray_rng, std::mt19937& material_rng) const {
     const auto* mat = dynamic_cast<const metal_material*>(hit.mat.get());
     if (!mat) {
       return vector{0.0, 0.0, 0.0};
     }
 
     const vector reflected = reflect(r.get_direction().normalize(), hit.normal);
-    const vector fuzz = random_in_unit_sphere(rng) * mat->get_diffusion();
+    const vector fuzz = random_in_unit_sphere(material_rng) * mat->get_diffusion();
     const ray scattered{hit.point, (reflected + fuzz).normalize()};
     const vector& reflectance = mat->get_reflectance();
 
     if (scattered.get_direction().dot(hit.normal) > 0.0) {
-      const vector traced = trace_ray(scattered, depth + 1, rng);
+      const vector traced = trace_ray(scattered, depth + 1, ray_rng, material_rng);
       return vector{
         reflectance.get_x() * traced.get_x(),
         reflectance.get_y() * traced.get_y(),
@@ -213,7 +217,7 @@ namespace render {
     return vector{0.0, 0.0, 0.0};
   }
 
-  vector renderer_soa::scatter_refractive(const ray& r, const hit_info& hit, int depth, std::mt19937& rng) const {
+  vector renderer_soa::scatter_refractive(const ray& r, const hit_info& hit, int depth, std::mt19937& ray_rng, std::mt19937& material_rng) const {
     const auto* mat = dynamic_cast<const refractive_material*>(hit.mat.get());
     if (!mat) {
       return vector{0.0, 0.0, 0.0};
@@ -237,16 +241,16 @@ namespace render {
       schlick(-cosine, mat->get_refraction_index());
 
     std::uniform_real_distribution<double> dist(0.0, 1.0);
-    if (refract(r.get_direction().normalize(), outward_normal, ni_over_nt, refracted) && dist(rng) > reflect_prob) {
+    if (refract(r.get_direction().normalize(), outward_normal, ni_over_nt, refracted) && dist(material_rng) > reflect_prob) {
       const ray scattered{hit.point, refracted};
-      return trace_ray(scattered, depth + 1, rng);
+      return trace_ray(scattered, depth + 1, ray_rng, material_rng);
     } else {
       const ray scattered{hit.point, reflect(r.get_direction().normalize(), hit.normal)};
-      return trace_ray(scattered, depth + 1, rng);
+      return trace_ray(scattered, depth + 1, ray_rng, material_rng);
     }
   }
 
-  vector renderer_soa::trace_ray(const ray& r, int depth, std::mt19937& rng) const {
+  vector renderer_soa::trace_ray(const ray& r, int depth, std::mt19937& ray_rng, std::mt19937& material_rng) const {
     if (depth >= config_.max_depth) {
       return vector{0.0, 0.0, 0.0};
     }
@@ -259,11 +263,11 @@ namespace render {
     const material_type type = hit->mat->get_type();
     
     if (type == material_type::matte) {
-      return scatter_matte(r, *hit, depth, rng);
+      return scatter_matte(r, *hit, depth, ray_rng, material_rng);
     } else if (type == material_type::metal) {
-      return scatter_metal(r, *hit, depth, rng);
+      return scatter_metal(r, *hit, depth, ray_rng, material_rng);
     } else if (type == material_type::refractive) {
-      return scatter_refractive(r, *hit, depth, rng);
+      return scatter_refractive(r, *hit, depth, ray_rng, material_rng);
     }
 
     return vector{0.0, 0.0, 0.0};
