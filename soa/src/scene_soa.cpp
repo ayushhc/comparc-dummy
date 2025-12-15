@@ -21,5 +21,5 @@ namespace render {
     cylinder_materials_.push_back(mat);
   }
 
-}  // namespace render
+}
 

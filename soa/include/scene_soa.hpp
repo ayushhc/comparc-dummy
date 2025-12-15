@@ -10,7 +10,6 @@
 
 namespace render {
 
-  // Structure of Arrays representation for scene objects
   class scene_soa {
   public:
     void add_sphere(const vector& center, double radius, std::shared_ptr<material> mat);
@@ -19,14 +18,12 @@ namespace render {
     [[nodiscard]] size_t get_num_spheres() const { return sphere_centers_x_.size(); }
     [[nodiscard]] size_t get_num_cylinders() const { return cylinder_centers_x_.size(); }
 
-    // Sphere data
     [[nodiscard]] const std::vector<double>& get_sphere_centers_x() const { return sphere_centers_x_; }
     [[nodiscard]] const std::vector<double>& get_sphere_centers_y() const { return sphere_centers_y_; }
     [[nodiscard]] const std::vector<double>& get_sphere_centers_z() const { return sphere_centers_z_; }
     [[nodiscard]] const std::vector<double>& get_sphere_radii() const { return sphere_radii_; }
     [[nodiscard]] const std::vector<std::shared_ptr<material>>& get_sphere_materials() const { return sphere_materials_; }
 
-    // Cylinder data
     [[nodiscard]] const std::vector<double>& get_cylinder_centers_x() const { return cylinder_centers_x_; }
     [[nodiscard]] const std::vector<double>& get_cylinder_centers_y() const { return cylinder_centers_y_; }
     [[nodiscard]] const std::vector<double>& get_cylinder_centers_z() const { return cylinder_centers_z_; }
@@ -37,14 +34,12 @@ namespace render {
     [[nodiscard]] const std::vector<std::shared_ptr<material>>& get_cylinder_materials() const { return cylinder_materials_; }
 
   private:
-    // Sphere arrays
     std::vector<double> sphere_centers_x_;
     std::vector<double> sphere_centers_y_;
     std::vector<double> sphere_centers_z_;
     std::vector<double> sphere_radii_;
     std::vector<std::shared_ptr<material>> sphere_materials_;
 
-    // Cylinder arrays
     std::vector<double> cylinder_centers_x_;
     std::vector<double> cylinder_centers_y_;
     std::vector<double> cylinder_centers_z_;
@@ -55,7 +50,7 @@ namespace render {
     std::vector<std::shared_ptr<material>> cylinder_materials_;
   };
 
-}  // namespace render
+}
 
 #endif
 

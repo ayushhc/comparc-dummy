@@ -69,12 +69,10 @@ namespace render {
     while (std::getline(file, line)) {
       line_number++;
 
-      // Remove trailing whitespace
       while (!line.empty() && (line.back() == ' ' || line.back() == '\t' || line.back() == '\r')) {
         line.pop_back();
       }
 
-      // Skip empty lines
       if (is_whitespace(line)) {
         continue;
       }
@@ -88,7 +86,6 @@ namespace render {
       try {
         const std::string& first = tokens[0];
 
-        // Parse materials
         if (first == "matte:") {
           if (tokens.size() != 5) {
             throw std::runtime_error("Error: Invalid matte material parameters\nLine: \"" + line + "\"");
@@ -133,7 +130,6 @@ namespace render {
           
           sc.add_material(std::make_shared<refractive_material>(name, refraction_index));
         }
-        // Parse objects
         else if (first == "sphere:") {
           if (tokens.size() < 6) {
             throw std::runtime_error("Error: Invalid sphere parameters\nLine: \"" + line + "\"");
@@ -202,5 +198,5 @@ namespace render {
     return sc;
   }
 
-}  // namespace render
+}
 

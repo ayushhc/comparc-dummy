@@ -84,4 +84,4 @@ namespace render {
     return v * scalar;
   }
 
-} // namespace render
+}

@@ -63,7 +63,7 @@ namespace render {
     double refraction_index_;
   };
 
-}  // namespace render
+}
 
 #endif
 

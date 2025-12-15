@@ -34,7 +34,7 @@ namespace render {
     [[nodiscard]] double schlick(double cosine, double ref_idx) const;
   };
 
-}  // namespace render
+}
 
 #endif
 

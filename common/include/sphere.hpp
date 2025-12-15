@@ -63,7 +63,7 @@ namespace render {
     std::shared_ptr<material> material_;
   };
 
-}  // namespace render
+}
 
 #endif
 

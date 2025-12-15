@@ -35,11 +35,9 @@ namespace render {
       const vector oc = r.get_origin() - center_;
       const vector dir = r.get_direction();
       
-      // Project ray direction and origin onto plane perpendicular to axis
       const vector dir_perp = dir - axis_norm * dir.dot(axis_norm);
       const vector oc_perp = oc - axis_norm * oc.dot(axis_norm);
 
-      // Solve quadratic for cylinder side intersection
       const double a = dir_perp.dot(dir_perp);
       const double b = 2.0 * dir_perp.dot(oc_perp);
       const double c = oc_perp.dot(oc_perp) - radius_ * radius_;
@@ -58,7 +56,6 @@ namespace render {
             const vector to_point = point - center_;
             const double projection = to_point.dot(axis_norm);
             
-            // Check if point is within cylinder height
             if (std::abs(projection) <= half_height) {
               const vector to_center = point - center_;
               const vector axis_proj = axis_norm * projection;
@@ -73,7 +70,6 @@ namespace render {
         }
       }
 
-      // Check end caps
       const double dir_dot_axis = dir.dot(axis_norm);
       if (std::abs(dir_dot_axis) > 0.0001) {
         for (const vector& cap_center : {top_center, bottom_center}) {
@@ -108,7 +104,7 @@ namespace render {
     std::shared_ptr<material> material_;
   };
 
-}  // namespace render
+}
 
 #endif
 

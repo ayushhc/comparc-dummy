@@ -19,7 +19,6 @@ namespace render {
   vector renderer::get_background_color(const ray& r) const {
     const vector unit_direction = r.get_direction().normalize();
     const double m = 0.5 * (unit_direction.get_y() + 1.0);
-    // Spec: c = (1 - m) * c_light + m * c_dark
     return config_.background_light_color * (1.0 - m) + config_.background_dark_color * m;
   }
 
@@ -27,7 +26,6 @@ namespace render {
     std::optional<hit_info> closest_hit;
     double closest_t = std::numeric_limits<double>::max();
 
-    // Check spheres
     for (const auto& sphere : scene_.get_spheres()) {
       auto hit = sphere->intersect(r);
       if (hit && hit->t < closest_t && hit->t > 0.0001) {
@@ -36,7 +34,6 @@ namespace render {
       }
     }
 
-    // Check cylinders
     for (const auto& cylinder : scene_.get_cylinders()) {
       auto hit = cylinder->intersect(r);
       if (hit && hit->t < closest_t && hit->t > 0.0001) {
@@ -179,5 +176,5 @@ namespace render {
     return vector{0.0, 0.0, 0.0};
   }
 
-}  // namespace render
+}
 

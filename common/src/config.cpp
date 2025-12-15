@@ -155,12 +155,10 @@ namespace render {
     std::string line;
 
     while (std::getline(file, line)) {
-      // Remove trailing whitespace
       while (!line.empty() && (line.back() == ' ' || line.back() == '\t' || line.back() == '\r')) {
         line.pop_back();
       }
 
-      // Skip empty lines
       if (is_whitespace(line)) {
         continue;
       }
@@ -188,5 +186,5 @@ namespace render {
     return config;
   }
 
-}  // namespace render
+}
 

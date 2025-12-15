@@ -37,7 +37,7 @@ namespace render {
     static bool is_whitespace(const std::string& line);
   };
 
-}  // namespace render
+}
 
 #endif
 

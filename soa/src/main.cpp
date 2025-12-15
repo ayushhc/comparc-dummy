@@ -23,11 +23,9 @@ int main(int argc, char* argv[]) {
   const std::string output_file = argv[3];
 
   try {
-    // Parse configuration and scene
     const auto config = render::config_parser::parse(config_file);
     const auto scene_aos = render::scene_parser::parse(scene_file);
 
-    // Convert AOS scene to SOA representation
     render::scene_soa scene_soa;
     for (const auto& sphere : scene_aos.get_spheres()) {
       scene_soa.add_sphere(sphere->get_center(), sphere->get_radius(), sphere->get_material());
@@ -36,19 +34,16 @@ int main(int argc, char* argv[]) {
       scene_soa.add_cylinder(cylinder->get_center(), cylinder->get_radius(), cylinder->get_axis(), cylinder->get_material());
     }
 
-    // Create camera and renderer
     const render::camera cam{config};
     const render::renderer_soa renderer{config, scene_soa};
 
     const int width = cam.get_image_width();
     const int height = cam.get_image_height();
 
-    // Initialize RNGs - separate for ray generation and material scattering
     std::mt19937 ray_rng(config.ray_rng_seed);
     std::mt19937 material_rng(config.material_rng_seed);
     std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-    // Render image
     std::vector<std::vector<render::vector>> image(static_cast<size_t>(width));
     for (int i = 0; i < width; ++i) {
       image[i].resize(static_cast<size_t>(height));
@@ -60,7 +55,6 @@ int main(int argc, char* argv[]) {
       for (int i = 0; i < width; ++i) {
         render::vector color{0.0, 0.0, 0.0};
 
-        // Monte Carlo sampling
         for (int s = 0; s < config.samples_per_pixel; ++s) {
           const double u = (static_cast<double>(i) + dist(ray_rng)) / static_cast<double>(width);
           const double v = (static_cast<double>(j) + dist(ray_rng)) / static_cast<double>(height);
@@ -68,7 +62,6 @@ int main(int argc, char* argv[]) {
           color = color + renderer.trace_ray(r, 0, ray_rng, material_rng);
         }
 
-        // Average and gamma correct
         color = color / static_cast<double>(config.samples_per_pixel);
         color = render::gamma_correct(color, config.gamma);
         color = render::clamp_color(color);
@@ -80,7 +73,6 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    // Write output
     render::write_ppm(output_file, image, width, height);
     std::cout << "Rendering complete. Output written to " << output_file << "\n";
 

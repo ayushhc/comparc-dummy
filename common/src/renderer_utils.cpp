@@ -33,12 +33,10 @@ namespace render {
       throw std::runtime_error("Error: Could not open output file: " + filename);
     }
 
-    // Write PPM header (P3 format)
     file << "P3\n";
     file << width << " " << height << "\n";
     file << "255\n";
 
-    // Write pixel data (top to bottom, left to right)
     for (int j = height - 1; j >= 0; --j) {
       for (int i = 0; i < width; ++i) {
         const vector& color = image[i][j];
@@ -49,5 +47,5 @@ namespace render {
     }
   }
 
-}  // namespace render
+}
 

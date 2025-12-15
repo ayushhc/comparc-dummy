@@ -16,12 +16,10 @@ namespace render {
     [[nodiscard]] double dot(const vector& other) const;
     [[nodiscard]] vector cross(const vector& other) const;
     
-    // Component access
     [[nodiscard]] double get_x() const { return x; }
     [[nodiscard]] double get_y() const { return y; }
     [[nodiscard]] double get_z() const { return z; }
 
-    // Operators
     vector operator+(const vector& other) const;
     vector operator-(const vector& other) const;
     vector operator*(double scalar) const;
@@ -37,9 +35,8 @@ namespace render {
     double x, y, z;
   };
 
-  // Scalar multiplication from left side
   vector operator*(double scalar, const vector& v);
 
-}  // namespace render
+}
 
 #endif

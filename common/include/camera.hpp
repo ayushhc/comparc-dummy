@@ -26,7 +26,7 @@ namespace render {
     int image_height_;
   };
 
-}  // namespace render
+}
 
 #endif
 

@@ -18,7 +18,6 @@ namespace render {
   vector renderer_soa::get_background_color(const ray& r) const {
     const vector unit_direction = r.get_direction().normalize();
     const double m = 0.5 * (unit_direction.get_y() + 1.0);
-    // Spec: c = (1 - m) * c_light + m * c_dark
     return config_.background_light_color * (1.0 - m) + config_.background_dark_color * m;
   }
 
@@ -26,7 +25,6 @@ namespace render {
     std::optional<hit_info> closest_hit;
     double closest_t = std::numeric_limits<double>::max();
 
-    // Check spheres (SOA - iterate over arrays)
     const size_t num_spheres = scene_.get_num_spheres();
     for (size_t idx = 0; idx < num_spheres; ++idx) {
       const vector center{
@@ -37,7 +35,6 @@ namespace render {
       const double radius = scene_.get_sphere_radii()[idx];
       const auto mat = scene_.get_sphere_materials()[idx];
 
-      // Perform intersection test
       const vector oc = r.get_origin() - center;
       const double a = r.get_direction().dot(r.get_direction());
       const double b = 2.0 * oc.dot(r.get_direction());
@@ -59,7 +56,6 @@ namespace render {
       }
     }
 
-    // Check cylinders (SOA)
     const size_t num_cylinders = scene_.get_num_cylinders();
     for (size_t idx = 0; idx < num_cylinders; ++idx) {
       const vector center{
@@ -75,7 +71,6 @@ namespace render {
       };
       const auto mat = scene_.get_cylinder_materials()[idx];
 
-      // Cylinder intersection (same logic as AOS version)
       const vector axis_norm = axis.normalize();
       const double half_height = axis.magnitude() / 2.0;
       const vector top_center = center + axis_norm * half_height;
@@ -115,7 +110,6 @@ namespace render {
         }
       }
 
-      // Check end caps
       const double dir_dot_axis = dir.dot(axis_norm);
       if (std::abs(dir_dot_axis) > 0.0001) {
         for (const vector& cap_center : {top_center, bottom_center}) {
@@ -273,5 +267,5 @@ namespace render {
     return vector{0.0, 0.0, 0.0};
   }
 
-}  // namespace render
+}
 

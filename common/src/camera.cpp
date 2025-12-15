@@ -18,23 +18,19 @@ namespace render {
     const vector target = config.camera_target;
     const vector north = config.camera_north;
 
-    // Create coordinate system
     vector forward = (target - origin_).normalize();
     vector right = forward.cross(north).normalize();
     vector up = right.cross(forward).normalize();
 
-    // Calculate viewport dimensions
     const double aspect_ratio = static_cast<double>(image_width_) / static_cast<double>(image_height_);
     const double theta = config.field_of_view * M_PI / 180.0;
     const double h = std::tan(theta / 2.0);
     const double viewport_height = 2.0 * h;
     const double viewport_width = aspect_ratio * viewport_height;
 
-    // Calculate viewport vectors
     horizontal_ = right * viewport_width;
     vertical_ = up * viewport_height;
 
-    // Lower left corner of viewport
     lower_left_corner_ = origin_ + forward - horizontal_ / 2.0 - vertical_ / 2.0;
   }
 
@@ -43,5 +39,5 @@ namespace render {
     return ray(origin_, direction.normalize());
   }
 
-}  // namespace render
+}
 

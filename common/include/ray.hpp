@@ -21,7 +21,7 @@ namespace render {
     vector direction_;
   };
 
-}  // namespace render
+}
 
 #endif
 
