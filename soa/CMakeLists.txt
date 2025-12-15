@@ -2,6 +2,8 @@ add_executable(render-soa)
 target_sources(render-soa 
     PRIVATE 
       src/main.cpp
+      src/scene_soa.cpp
+      src/renderer_soa.cpp
 )
 target_include_directories(render-soa PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

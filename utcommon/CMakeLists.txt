@@ -1,9 +1,15 @@
 set(COMMON_SRC_FILES 
   "${CMAKE_SOURCE_DIR}/common/src/vector.cpp"
+  "${CMAKE_SOURCE_DIR}/common/src/scene.cpp"
+  "${CMAKE_SOURCE_DIR}/common/src/config.cpp"
 )
 
 set(CURRENT_DIR_SRC_FILES 
   "${CMAKE_CURRENT_SOURCE_DIR}/test_vector.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/test_material.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/test_sphere.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/test_scene.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/test_config.cpp"
 )
 
 add_unit_test_target(
